@@ -1,0 +1,33 @@
+{
+  "mise_a_jour": "20:55:11",
+  "matchs": [
+    {
+      "equipe_home": "Manchester Blue",
+      "equipe_away": "London Reds",
+      "c1": 1.55,
+      "cX": 3.8,
+      "c2": 4.9
+    },
+    {
+      "equipe_home": "Liverpool",
+      "equipe_away": "Everton",
+      "c1": 1.4,
+      "cX": 4.2,
+      "c2": 6
+    },
+    {
+      "equipe_home": "Spurs",
+      "equipe_away": "Chelsea",
+      "c1": 2.3,
+      "cX": 3.2,
+      "c2": 2.6
+    },
+    {
+      "equipe_home": "Newcastle",
+      "equipe_away": "Aston Villa",
+      "c1": 1.95,
+      "cX": 3.4,
+      "c2": 3.1
+    }
+  ]
+}
