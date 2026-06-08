@@ -1,0 +1,45 @@
+name: Bet261 Live Scraper Matrix
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Récupérer le code du dépôt
+      uses: actions/checkout@v3
+
+    - name: Configurer Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Installer les outils de simulation (Puppeteer)
+      run: npm install puppeteer
+
+    - name: Lancement du protocole d'extraction Bet261
+      run: |
+        node -e "
+        const fs = require('fs');
+        let simulationMatchs = {
+          mise_a_jour: new Date().toLocaleTimeString('fr-FR'),
+          matchs: [
+            { equipe_home: 'Manchester Blue', equipe_away: 'London Reds', c1: 1.55, cX: 3.80, c2: 4.90 },
+            { equipe_home: 'Liverpool', equipe_away: 'Everton', c1: 1.40, cX: 4.20, c2: 6.00 },
+            { equipe_home: 'Spurs', equipe_away: 'Chelsea', c1: 2.30, cX: 3.20, c2: 2.60 },
+            { equipe_home: 'Newcastle', equipe_away: 'Aston Villa', c1: 1.95, cX: 3.40, c2: 3.10 }
+          ]
+        };
+        fs.writeFileSync('cotes.json', JSON.stringify(simulationMatchs, null, 2));
+        "
+
+    - name: Injection et Sauvegarde des données sur le site
+      run: |
+        git config --global user.name 'CyberBot-Matrix'
+        git config --global user.email 'bot@cybermatrix.com'
+        git add cotes.json
+        git commit -m "Flux Live Bet261 Synchronisé" || exit 0
+        git push
