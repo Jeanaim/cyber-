@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Prediction Matrix - Live Feed</title>
+    <style>
+        :root {
+            --bg-black: #030305;
+            --cyber-pink: #ff007f;
+            --cyber-cyan: #00f0ff;
+            --cyber-green: #39ff14;
+            --panel-bg: #0a0a14;
+            --border-color: #1a1a2e;
+        }
+
+        body {
+            background-color: var(--bg-black);
+            color: #e0e0ea;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .cyber-container {
+            width: 100%;
+            max-width: 550px;
+            background: var(--panel-bg);
+            border: 2px solid var(--cyber-cyan);
+            border-radius: 4px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .cyber-container::before {
+            content: "AUTOMATED_LIVE_FEED_SYSTEM";
+            position: absolute;
+            top: -11px;
+            left: 15px;
+            background: var(--cyber-cyan);
+            color: #000;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 8px;
+            letter-spacing: 1px;
+        }
+
+        h1 {
+            font-size: 22px;
+            text-transform: uppercase;
+            text-align: center;
+            margin: 10px 0 20px 0;
+            color: #fff;
+            text-shadow: 0 0 8px var(--cyber-pink);
+            letter-spacing: 1px;
+        }
+
+        h1 span { color: var(--cyber-cyan); text-shadow: 0 0 8px var(--cyber-cyan); }
+
+        .update-tag {
+            text-align: center;
+            font-size: 11px;
+            color: var(--cyber-pink);
+            margin-bottom: 15px;
+        }
+
+        /* Tableau Cyberpunk */
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        .matrix-table th {
+            text-align: left;
+            padding: 10px;
+            color: var(--cyber-cyan);
+            border-bottom: 2px solid var(--cyber-cyan);
+            text-transform: uppercase;
+        }
+        .matrix-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .match-title { font-weight: bold; color: #fff; }
+        .odds-sub { font-size: 10px; color: #8a8a9e; margin-top: 2px; }
+        .pred-1n2 { color: var(--cyber-green); font-weight: bold; }
+        .pred-score { color: var(--gold); font-weight: bold; color: #facc15; }
+    </style>
+</head>
+<body>
+
+<div class="cyber-container">
+    <h1>MATRIX <span>LIVE SCRAPER</span></h1>
+    <div class="update-tag" id="last-update">[ Flux en attente de synchronisation... ]</div>
+
+    <table class="matrix-table">
+        <thead>
+            <tr>
+                <th>Match Virtuel</th>
+                <th>Algorithme 1N2</th>
+                <th>Buts & Score</th>
+            </tr>
+        </thead>
+        <tbody id="live-rows">
+            <tr>
+                <td colspan="3" style="text-align: center; color: #8a8a9e; padding: 20px;">
+                    Connexion au flux robotique en cours...
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // Le script va lire le fichier "cotes.json" qui est mis à jour par le robot GitHub
+    async function chargerDonniesAutomatiques() {
+        try {
+            const reponse = await fetch('cotes.json?t=' + new Date().getTime());
+            const donnees = await reponse.json();
+            
+            document.getElementById('last-update').innerText = `[ DERNIÈRE SYNCHRO SATELLITE : ${donnees.mise_a_jour} ]`;
+            
+            const tbody = document.getElementById('live-rows');
+            tbody.innerHTML = ""; // Vider
+
+            donnees.matchs.forEach(m => {
+                // Calculs algorithmiques en direct sur les cotes scrapées
+                let marge = (1/m.c1) + (1/m.cX) + (1/m.c2);
+                let p1 = (1/m.c1) / marge;
+                let p2 = (1/m.c2) / marge;
+
+                let prono = p1 > p2 ? "DOMICILE (1X)" : "EXTÉRIEUR (X2)";
+                if(Math.abs(p1 - p2) < 0.08) prono = "TRÈS SERRÉ (X)";
+
+                let buts = (m.c1 < 1.60 || m.c2 < 1.60) ? "Plus 2.5" : "Moins 2.5";
+                let score = p1 > p2 ? "2-1 / 2-0" : "1-2 / 0-2";
+
+                let row = `<tr>
+                    <td>
+                        <span class="match-title">${m.equipe_home} vs ${m.equipe_away}</span>
+                        <div class="odds-sub">Cotes : ${m.c1} | ${m.cX} | ${m.c2}</div>
+                    </td>
+                    <td class="pred-1n2">${prono}</td>
+                    <td>
+                        <span style="color:#fff;">${buts}</span><br>
+                        <span class="pred-score">${score}</span>
+                    </td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+
+        } catch (erreur) {
+            console.log("En attente de la première génération du fichier JSON par le robot...");
+        }
+    }
+
+    // Charger les données immédiatement et actualiser toutes les minutes
+    chargerDonniesAutomatiques();
+    setInterval(chargerDonniesAutomatiques, 60000);
+</script>
+
+</body>
+</html>
