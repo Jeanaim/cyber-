@@ -55,7 +55,7 @@
             font-size: 22px;
             text-transform: uppercase;
             text-align: center;
-            margin: 10px 0 20px 0;
+            margin: 10px 0 10px 0;
             color: #fff;
             text-shadow: 0 0 8px var(--cyber-pink);
             letter-spacing: 1px;
@@ -68,6 +68,35 @@
             font-size: 11px;
             color: var(--cyber-pink);
             margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        /* BOUTON ACTUALISER NEON VERT */
+        .btn-refresh {
+            width: 100%;
+            background: transparent;
+            color: var(--cyber-green);
+            border: 2px solid var(--cyber-green);
+            padding: 12px;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            letter-spacing: 2px;
+            transition: all 0.2s ease;
+            margin-bottom: 20px;
+            box-shadow: 0 0 8px rgba(57, 255, 20, 0.2);
+        }
+
+        .btn-refresh:hover {
+            background: var(--cyber-green);
+            color: #000;
+            box-shadow: 0 0 15px var(--cyber-green);
+        }
+
+        .btn-refresh:active {
+            transform: scale(0.98);
         }
 
         /* Tableau Cyberpunk */
@@ -91,14 +120,16 @@
         .match-title { font-weight: bold; color: #fff; }
         .odds-sub { font-size: 10px; color: #8a8a9e; margin-top: 2px; }
         .pred-1n2 { color: var(--cyber-green); font-weight: bold; }
-        .pred-score { color: var(--gold); font-weight: bold; color: #facc15; }
+        .pred-score { color: #facc15; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="cyber-container">
     <h1>MATRIX <span>LIVE SCRAPER</span></h1>
-    <div class="update-tag" id="last-update">[ Flux en attente de synchronisation... ]</div>
+    <div class="update-tag" id="last-update">[ Flux en attente... ]</div>
+
+    <button class="btn-refresh" onclick="chargerDonniesAutomatiques()">⚡ Actualiser la matrice</button>
 
     <table class="matrix-table">
         <thead>
@@ -119,19 +150,22 @@
 </div>
 
 <script>
-    // Le script va lire le fichier "cotes.json" qui est mis à jour par le robot GitHub
     async function chargerDonniesAutomatiques() {
+        const tag = document.getElementById('last-update');
+        const ancienTexte = tag.innerText;
+        tag.innerText = "[ RECUPERATION DU FLUX EN COURS... ⏳ ]";
+
         try {
+            // Le paramètre '?t=' force le navigateur à chercher les vraies nouvelles cotes sans utiliser le cache
             const reponse = await fetch('cotes.json?t=' + new Date().getTime());
             const donnees = await reponse.json();
             
-            document.getElementById('last-update').innerText = `[ DERNIÈRE SYNCHRO SATELLITE : ${donnees.mise_a_jour} ]`;
+            tag.innerText = `[ DERNIÈRE SYNCHRO SATELLITE : ${donnees.mise_a_jour} ]`;
             
             const tbody = document.getElementById('live-rows');
-            tbody.innerHTML = ""; // Vider
+            tbody.innerHTML = ""; 
 
             donnees.matchs.forEach(m => {
-                // Calculs algorithmiques en direct sur les cotes scrapées
                 let marge = (1/m.c1) + (1/m.cX) + (1/m.c2);
                 let p1 = (1/m.c1) / marge;
                 let p2 = (1/m.c2) / marge;
@@ -157,13 +191,13 @@
             });
 
         } catch (erreur) {
-            console.log("En attente de la première génération du fichier JSON par le robot...");
+            tag.innerText = "[ ERREUR : Le robot n'a pas encore créé 'cotes.json' ]";
+            setTimeout(() => { tag.innerText = ancienTexte; }, 3000);
         }
     }
 
-    // Charger les données immédiatement et actualiser toutes les minutes
+    // Chargement initial au démarrage
     chargerDonniesAutomatiques();
-    setInterval(chargerDonniesAutomatiques, 60000);
 </script>
 
 </body>
